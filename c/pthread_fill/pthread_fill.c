@@ -9,8 +9,8 @@
 
 void *pthread_fill (void *arg);
 int check_array (uint8_t array[], uint32_t size, uint32_t n);
-void press_enter();
-double wall_time();
+void press_enter ();
+double wall_time ();
 
 typedef struct {
     uint32_t id;
@@ -20,6 +20,7 @@ typedef struct {
 } pthread_args;
 
 int main (int arg_count, char *arg_values[]) {
+    /* Grab number of threads from invocation args */
     if (arg_count < 2) {
         printf("Usage: pthread_fill <num_threads>\n");
         exit(1);
@@ -32,9 +33,11 @@ int main (int arg_count, char *arg_values[]) {
         exit(2);
     }
 
+    /* Allocate space for a 500MB array */
     uint32_t size = (1 << 20) * 500;
     uint8_t *fill_this = malloc(size * sizeof(uint8_t));
 
+    /* Initialize the array to SEQUENTIAL_VAL using the single main thread */
     printf("Filling a 500MB array in the master thread ...\n");
     press_enter();
     uint32_t i;
@@ -45,12 +48,14 @@ int main (int arg_count, char *arg_values[]) {
     double sequential_runtime = wall_time() - start_time;
     printf("Done in %f seconds\n", sequential_runtime);
 
+    /* Check if the initilization was successful */
     if (check_array(fill_this, size, SEQUENTIAL_VAL)) {
         printf("Array check failed, exiting.\n");
         exit(3);
     }
     printf("Array check passed\n\n");
- 
+
+    /* Initialize the array to PTHREAD_VAL using pthreads */
     pthread_t threads[num_threads];
 
     printf("Filling a 500MB array using %d threads ...\n", num_threads);
@@ -66,6 +71,7 @@ int main (int arg_count, char *arg_values[]) {
         pthread_create(&threads[i], NULL, pthread_fill, arg);
     }
 
+    /* Joining on the threads before completing timing */
     for (i = 0; i < num_threads; i++) {
         pthread_join(threads[i], NULL);
     }
@@ -73,12 +79,14 @@ int main (int arg_count, char *arg_values[]) {
     double threaded_runtime = wall_time() - start_time;
     printf("Done in %f seconds\n", threaded_runtime);
 
+    /* Check if the initilization was successful */
     if (check_array(fill_this, size, PTHREAD_VAL)) {
         printf("Array check failed, exiting.\n");
         exit(3);
     }
     printf("Array check passed\n\n");
 
+    /* Calculate and print speedup */
     printf("Speedup %f\n", sequential_runtime / threaded_runtime);
 
     return 0;
@@ -104,13 +112,13 @@ int check_array (uint8_t array[], uint32_t size, uint32_t n) {
     return 0;
 }
 
-void press_enter() {
+void press_enter () {
     printf("Press ENTER to continue");
     char c;
     while ((c = getchar()) != '\n' && c != EOF);
 }
 
-double wall_time() {
+double wall_time () {
     struct timeval time;
     if (gettimeofday(&time, NULL)){
         return -1;
