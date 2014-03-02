@@ -114,6 +114,9 @@ int check_array (uint8_t array[], uint32_t size, uint32_t n) {
 
 void press_enter () {
     printf("Press ENTER to continue");
+
+    /* The proper way to clear a console buffer.
+       fflush operates on output file descriptors only */
     char c;
     while ((c = getchar()) != '\n' && c != EOF);
 }
