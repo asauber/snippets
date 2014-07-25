@@ -1,2 +1,1 @@
-Small programs to test libraries and language features
-
+Tests of libraries and language features
